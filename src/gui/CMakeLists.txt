@@ -1,5 +1,5 @@
 set(TARGET_NAME soundcrest)
-add_executable(${TARGET_NAME}
+add_executable(${TARGET_NAME} MACOSX_BUNDLE
 	fsguiapp.cpp
 	fsguiapp_draw.cpp
 	fsguimain.cpp
