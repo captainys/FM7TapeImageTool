@@ -13,4 +13,4 @@ add_executable(${TARGET_NAME}
 	selectmenu.cpp
 	fsguiapp.h
 )
-target_link_libraries(${TARGET_NAME} fslazywindow soundcrest_kernel soundcrest_kernelutil soundcrest_edit ysport ysgl ysglcpp ysglcpp_gl2 fsguilib fsguilib_gl2 fsguifiledialog t77lib)
+target_link_libraries(${TARGET_NAME} fslazywindow soundcrest_kernel soundcrest_kernelutil soundcrest_edit ysport ysgl ysglcpp ysglcpp_gl2 fsguilib fsguilib_gl2 fsguifiledialog t77lib ysfontrenderer yssystemfont ysfontrenderer yssystemfont)
