@@ -1,5 +1,6 @@
 # FM-7 Tape Image Tool
 ## by CaptainYS (http://www.ysflight.com)
+
 ---
 
 # Introduction
@@ -10,6 +11,7 @@ This program makes a .T77 tape image from 44.1KHz WAV sampling of FM-7 data (pro
 For example, very often some waves are shifted to plus side or minus side.  If the wave is shifted to the plus side, the duration of the minus phase gets shorter and plus phase gets longer.
 
 This program first applies sequence of the filters to re-shape the wave so that the necessary information can be more accurately extracted, and then recognize data bytes that FM-7 BIOS recognizes, and then re-encode the recognized data bytes to .T77 format file.
+
 ---
 
 # はじめに
@@ -29,6 +31,7 @@ This program first applies sequence of the filters to re-shape the wave so that 
 **After Filtering  フィルター後**
 
 ---
+
 # Tips for Successful Imaging
 Data/Program tapes are surprisingly durable.  I have a better success ratio of imaging tapes than imaging disks.  However, it is not as simple as reading and recording sectors.  There are some tips for successful imaging.
 
@@ -47,6 +50,7 @@ Record FM-7 data/program tape stereo.  Don't force it to be monaural.  In my exp
 Seriously adjust the volume .  Do not saturate, but not too low volume.  I shoot for 70% of the maximum level.
 
 ---
+
 # イメージ化成功のために
 予想に反して、データ/プログラムテープはかなり安定で長持ちします。ディスクのイメージ化よりもテープのイメージ化の方がはるかに成功率が高いです。しかし、テープはセクターやフォーマット情報を読み込んで記録するのとは違って、注意点があります。
 
@@ -69,6 +73,7 @@ Audacityがこの手の話ではポピュラーですが、Audacityはあまり�
 
 
 ---
+
 # Basic Usage
 If the recording is of reasonably good quality, the following steps should create a good .T77 tape image.
 
@@ -90,6 +95,3 @@ Some games use non-standard encoding, which FM-7 BIOS cannot recognize, in which
 5. [Save T77 file]ボタンを押して、保存するファイル名を選択。
 
 いくつかのゲームはFM-7のBIOSが使うのとは違ったエンコーディングを使っている場合があり、その場合、[Save T77 file]ではT77ファイルの生成に失敗します。その場合、ステップ5で[Force Save T77]を[Save T77 file]の代わりに選んでみてください。あるいは、エミュレータが.T77ファイルからロードできない場合も、[Force Save T77]を試してみてください。
-
-
-
