@@ -1,0 +1,94 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ master ]
+    tags-ignore:
+      - 'v*' # Don't run if tagged as v*.
+
+jobs:
+  build-windows:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: checkout_public_libraries
+      run: git clone https://github.com/captainys/public.git
+      working-directory: .
+    - name: mkdir
+      run: mkdir ci_windows
+    - name: build
+      run: |
+          cmake ../src
+          cmake --build . --config Release --target soundcrest --parallel
+      working-directory: ./ci_windows
+    - name: make_zip
+      run: |
+          cmake -E copy ./gui/Release/soundcrest.exe .
+          cmake -E copy ../README.md .
+          cmake -E copy ../LICENSE .
+          cmake -E copy_directory ../rc ./rc
+          cmake -E tar cvf windows_binary_latest.zip --format=zip soundcrest.exe README.md LICENSE rc
+      working-directory: ./ci_windows
+
+
+
+  build-linux:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: checkout_public_libraries
+      run: git clone https://github.com/captainys/public.git
+      working-directory: .
+    - name: mkdir
+      run: mkdir ci_ubuntu
+    - name: install-OpenGL
+      run: |
+          sudo apt-get update
+          sudo apt-get install libglu1-mesa-dev mesa-common-dev
+    - name: install-ALSA
+      run: sudo apt-get install libasound2 libasound2-dev
+    - name: build
+      run: |
+          cmake ../src -DCMAKE_BUILD_TYPE=Release
+          cmake --build . --config Release --target soundcrest --parallel
+      working-directory: ./ci_ubuntu
+
+    - name: make_zip
+      run: |
+          cmake -E copy ./gui/soundcrest .
+          cmake -E copy ../README.md .
+          cmake -E copy ../LICENSE .
+          cmake -E copy_directory ../rc ./rc
+          cmake -E tar cvf ubuntu_binary_latest.zip --format=zip soundcrest README.md LICENSE rc
+      working-directory: ./ci_ubuntu
+
+
+
+  build-macos:
+
+    runs-on: macos-10.15
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: checkout_public_libraries
+      run: git clone https://github.com/captainys/public.git
+      working-directory: .
+    - name: mkdir
+      run: mkdir ci_macos
+    - name: build
+      run: |
+          cmake ../src -DCMAKE_BUILD_TYPE=Release
+          cmake --build . --config Release --target soundcrest --parallel
+      working-directory: ./ci_macos
+    - name: make_zip
+      run: |
+          cmake -E copy_directory ../gui/soundcrest.app ./soundcrest.app
+          cmake -E copy ../README.md .
+          cmake -E copy ../LICENSE .
+          cmake -E copy_directory ../rc ./rc
+          cmake -E tar cvf macos_binary_latest.zip --format=zip soundcrest.app README.md LICENSE rc
+      working-directory: ./ci_macos
