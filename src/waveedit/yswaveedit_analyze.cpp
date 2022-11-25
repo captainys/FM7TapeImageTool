@@ -204,7 +204,7 @@ YSRESULT YsWaveEdit::RunCommand_Analyze_MarkLongWaveAsSilent(const YsString &ful
 					state=0;
 				}
 			}
-			ptr=std::max(ptr,minmax[1]);
+			ptr=std::max<YSSIZE_T>(ptr,minmax[1]);
 		}
 	}
 
@@ -228,9 +228,9 @@ YSRESULT YsWaveEdit::RunCommand_Analyze_Unsilence(const YsString &fullCmd,YsCons
 	std::vector <bool> silent;
 	silent.resize(wavRaw.GetNumSamplePerChannel());
 
-	for(auto &b : silent)
+	for(YSSIZE_T i=0; i<silent.size(); ++i)
 	{
-		b=false;
+		silent[i]=false;
 	}
 	for(auto rgn : silentSegment)
 	{
@@ -261,4 +261,5 @@ YSRESULT YsWaveEdit::RunCommand_Analyze_Unsilence(const YsString &fullCmd,YsCons
 			state=0;
 		}
 	}
+	return YSOK;
 }
