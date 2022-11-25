@@ -9,7 +9,7 @@ const std::vector <YsString> &YsWaveEdit::GetCommandLog(void) const
 
 YSRESULT YsWaveEdit::LoadWav(YsWString fName)
 {
-	cmdLog.clear();
+	CleanUp();
 	return YsWaveKernel::LoadWav(fName);
 }
 

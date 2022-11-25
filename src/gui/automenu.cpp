@@ -107,5 +107,13 @@ void FsGuiMainCanvas::DoAutomaticFiltering(int silenceLevelThr,double silenceDur
 	RunCommand(str);
 
 
+	str.Printf("ANALYZE DETECT_PEAK %d",GetCurrentChannel());
+	RunCommand(str);
+
+
+	str.Printf("ANALYZE CALCULATE_ENVELOPE %d",GetCurrentChannel());
+	RunCommand(str);
+
+
 	SetNeedRedraw(YSTRUE);
 }
