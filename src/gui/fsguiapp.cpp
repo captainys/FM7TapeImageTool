@@ -120,7 +120,6 @@ void FsGuiMainCanvas::MakeMainMenu(void)
 	{
 		auto editMenu=mainMenu->AddTextItem(0,FSKEY_E,L"Edit")->AddSubMenu();
 		editMenu->AddTextItem(mainMenu->MkId("edit/makeSilence"),FSKEY_0,L"Make Silence")->BindCallBack(&THISCLASS::Edit_MakeSilence,this);
-		editMenu->AddTextItem(mainMenu->MkId("edit/reallySilence"),FSKEY_NULL,L"Make Silent Region Really Silent.")->BindCallBack(&THISCLASS::Edit_ReallySilenceSilentSegment,this);
 		editMenu->AddTextItem(mainMenu->MkId("edit/deleteChannel"),FSKEY_NULL,L"Delete Channel")->BindCallBack(&THISCLASS::Edit_DeleteChannel,this);
 		editMenu->AddTextItem(mainMenu->MkId("edit/mergeChannel"),FSKEY_NULL,L"Merge Channels to 1 Channel")->BindCallBack(&THISCLASS::Edit_MergeToOneChannel,this);
 		editMenu->AddTextItem(mainMenu->MkId("edit/makesinehigh"),FSKEY_NULL,L"Make Sine Wave High First")->BindCallBack(&THISCLASS::Edit_MakeSineWaveHighFirst,this);
@@ -163,21 +162,32 @@ void FsGuiMainCanvas::MakeMainMenu(void)
 	}
 
 	{
-		auto analyzeMenu=mainMenu->AddTextItem(0,FSKEY_A,L"Analyze")->AddSubMenu();
-		analyzeMenu->AddTextItem(mainMenu->MkId("analyze/detectPeak"),FSKEY_P,L"Detect Peaks")->BindCallBack(&THISCLASS::Analyze_DetectPeak,this);
-		analyzeMenu->AddTextItem(mainMenu->MkId("analyze/filterPeak"),FSKEY_F,L"Filter Peaks")->BindCallBack(&THISCLASS::Analyze_FilterShortAndLowPeak,this);
-		analyzeMenu->AddTextItem(mainMenu->MkId("analyze/analyzePeak"),FSKEY_NULL,L"Analyze Low/Narrow Peaks")->BindCallBack(&THISCLASS::Analyze_InspectPeak,this);
-		analyzeMenu->AddTextItem(mainMenu->MkId("analyze/markSilence"),FSKEY_NULL,L"Mark Silent Segments")->BindCallBack(&THISCLASS::Analyze_MarkSilentRegion,this);
-		analyzeMenu->AddTextItem(mainMenu->MkId("analyze/markUnsilence"),FSKEY_NULL,L"Unmark Silent Segments from Selection")->BindCallBack(&THISCLASS::Analyze_Unsilence,this);
-		analyzeMenu->AddTextItem(mainMenu->MkId("analyze/silenceLongToWave"),FSKEY_NULL,L"Mark Long Wave as Silent -> Downward Short Wave")->BindCallBack(&THISCLASS::Analyze_MarkLongWaveAsSilentFollowedByShortWave,this);
-		analyzeMenu->AddTextItem(mainMenu->MkId("analyze/calculateEnvelope"),FSKEY_E,L"Calculate Envelope")->BindCallBack(&THISCLASS::Analyze_CalculateEnvelope,this);
-		analyzeMenu->AddTextItem(mainMenu->MkId("analyze/fm7"),FSKEY_NULL,L"FM7 Data Tape")->BindCallBack(&THISCLASS::Analyze_FM7,this);
+		auto analyzeMenu=mainMenu->AddTextItem(0,FSKEY_A,L"Automatic")->AddSubMenu();
 	}
 
 	{
-		auto filterMenu=mainMenu->AddTextItem(0,FSKEY_T,L"Filter")->AddSubMenu();
-		filterMenu->AddTextItem(mainMenu->MkId("filter/median"),FSKEY_M,L"Median Filter")->BindCallBack(&THISCLASS::Filter_Median,this);
-		filterMenu->AddTextItem(mainMenu->MkId("filter/expand_envelope"),FSKEY_X,L"Expand Envelope")->BindCallBack(&THISCLASS::Filter_ExpandEnvelope,this);
+		auto manualMenu=mainMenu->AddTextItem(0,FSKEY_M,L"Manual")->AddSubMenu();
+
+		manualMenu->AddTextItem(mainMenu->MkId("manualanalyze/markSilence"),FSKEY_NULL,L"Mark Silent Segments")->BindCallBack(&THISCLASS::Analyze_MarkSilentRegion,this);
+		manualMenu->AddTextItem(mainMenu->MkId("manual/reallySilence"),FSKEY_NULL,L"Make Silent Region Really Silent.")->BindCallBack(&THISCLASS::Edit_ReallySilenceSilentSegment,this);
+
+		manualMenu->AddTextItem(mainMenu->MkId("manualfilter/median"),FSKEY_M,L"Median Filter")->BindCallBack(&THISCLASS::Filter_Median,this);
+
+
+		manualMenu->AddTextItem(mainMenu->MkId("manual/detectPeak"),FSKEY_P,L"Detect Peaks")->BindCallBack(&THISCLASS::Analyze_DetectPeak,this);
+		manualMenu->AddTextItem(mainMenu->MkId("manual/filterPeak"),FSKEY_F,L"Filter Peaks")->BindCallBack(&THISCLASS::Analyze_FilterShortAndLowPeak,this);
+		manualMenu->AddTextItem(mainMenu->MkId("manual/analyzePeak"),FSKEY_NULL,L"Analyze Low/Narrow Peaks")->BindCallBack(&THISCLASS::Analyze_InspectPeak,this);
+		manualMenu->AddTextItem(mainMenu->MkId("manual/markUnsilence"),FSKEY_NULL,L"Unmark Silent Segments from Selection")->BindCallBack(&THISCLASS::Analyze_Unsilence,this);
+		manualMenu->AddTextItem(mainMenu->MkId("manual/silenceLongToWave"),FSKEY_NULL,L"Mark Long Wave as Silent -> Downward Short Wave")->BindCallBack(&THISCLASS::Analyze_MarkLongWaveAsSilentFollowedByShortWave,this);
+		manualMenu->AddTextItem(mainMenu->MkId("manual/calculateEnvelope"),FSKEY_E,L"Calculate Envelope")->BindCallBack(&THISCLASS::Analyze_CalculateEnvelope,this);
+
+		manualMenu->AddTextItem(mainMenu->MkId("manual/expand_envelope"),FSKEY_X,L"Expand Envelope")->BindCallBack(&THISCLASS::Filter_ExpandEnvelope,this);
+	}
+
+	{
+		auto fm7Menu=mainMenu->AddTextItem(0,FSKEY_7,L"FM7")->AddSubMenu();
+
+		fm7Menu->AddTextItem(mainMenu->MkId("fm7/fm7"),FSKEY_NULL,L"FM7 Tape Dialog")->BindCallBack(&THISCLASS::Analyze_FM7,this);
 	}
 
 	SetMainMenu(mainMenu);
