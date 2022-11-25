@@ -23,6 +23,10 @@ YSRESULT YsWaveEdit::RunCommand_Filter(const YsString &fullCmd,YsConstArrayMask 
 	{
 		return RunCommand_Filter_ExpandEnvelope(fullCmd,argv);
 	}
+	else if(0==argv[1].STRCMP("LOW_AND_SHORT_PEAK"))
+	{
+		return RunCommand_Filter_LowAndShortPeak(fullCmd,argv);
+	}
 
 	Error(fullCmd,"Unrecognized sub-command.");
 	return YSERR;
@@ -153,3 +157,70 @@ YSRESULT YsWaveEdit::RunCommand_Filter_ExpandEnvelope(const YsString &fullCmd,Ys
 	return YSOK;
 }
 
+YSRESULT YsWaveEdit::RunCommand_Filter_LowAndShortPeak(const YsString &fullCmd,YsConstArrayMask <YsString> argv)
+{
+	if(argv.size()<5)
+	{
+		// FILTER LOW_AND_SHORT_PEAK channel lowThr shortCht
+		Error(fullCmd,"Too few arguments.");
+		return YSERR;
+	}
+
+
+	std::vector <YsWaveKernel::Peak> peak=GetPeak(),newPeak;
+	auto channel=argv[2].Atoi();
+	auto lowThr=argv[3].Atoi();
+	auto shortThr=argv[4].Atoi();
+
+	for(YSSIZE_T i=peak.size()-1; 0<=i; --i)
+	{
+		peak[i].deleted=false;
+	}
+
+	YSSIZE_T i0=0,i1=0;
+	for(YSSIZE_T i=0; i<peak.size(); ++i)
+	{
+		if(peak[i].isHigh!=peak[i1].isHigh)
+		{
+			i0=i1;
+			i1=i;
+
+			if(peak[i1].idx<=peak[i0].idx+shortThr)
+			{
+				for(auto j=i0; j<=i1; ++j)
+				{
+					peak[j].deleted=true;
+				}
+				i1=i+1;
+				i0=i1;
+				continue;
+			}
+
+			auto level0=wav.GetSignedValue16(channel,peak[i0].idx);
+			auto level1=wav.GetSignedValue16(channel,peak[i1].idx);
+			auto diff=YsAbs(level1-level0);
+			if(diff<lowThr)
+			{
+				for(auto j=i0; j<=i1; ++j)
+				{
+					peak[j].deleted=true;
+				}
+				i1=i+1;
+				i0=i1;
+				continue;
+			}
+		}
+	}
+
+	for(auto &p : peak)
+	{
+		if(true!=p.deleted)
+		{
+			newPeak.push_back(p);
+		}
+	}
+
+	SetPeak(newPeak);
+
+	return YSOK;
+}

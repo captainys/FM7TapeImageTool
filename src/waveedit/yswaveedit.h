@@ -42,6 +42,7 @@ private:
 	YSRESULT RunCommand_Filter_Median(const YsString &fullCmd,YsConstArrayMask <YsString> argv);
 	YSRESULT RunCommand_Filter_EvenOut(const YsString &fullCmd,YsConstArrayMask <YsString> argv);
 	YSRESULT RunCommand_Filter_ExpandEnvelope(const YsString &fullCmd,YsConstArrayMask <YsString> argv);
+	YSRESULT RunCommand_Filter_LowAndShortPeak(const YsString &fullCmd,YsConstArrayMask <YsString> argv);
 
 public:
 	YsWave_FM7Util::Option fm7UtilOption;

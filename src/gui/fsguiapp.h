@@ -228,6 +228,15 @@ private:
 	void View_DrawNonCurrent(FsGuiPopUpMenuItem *);
 
 
+
+	// Automatic Filtering
+	void AutomaticFiltering(FsGuiPopUpMenuItem *);
+public:
+	void DoAutomaticFiltering(int silenceLevelThr,double silenceDurationThr,int lowPeakThr,int shortPeakThr);
+private:
+
+
+	// Manual Filtering
 	void Analyze_DetectPeak(FsGuiPopUpMenuItem *);
 	void Analyze_FilterShortAndLowPeak(FsGuiPopUpMenuItem *);
 public:

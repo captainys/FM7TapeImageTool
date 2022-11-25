@@ -162,7 +162,9 @@ void FsGuiMainCanvas::MakeMainMenu(void)
 	}
 
 	{
-		auto analyzeMenu=mainMenu->AddTextItem(0,FSKEY_A,L"Automatic")->AddSubMenu();
+		auto subMenu=mainMenu->AddTextItem(0,FSKEY_A,L"Automatic")->AddSubMenu();
+		subMenu->AddTextItem(mainMenu->MkId("auto/filter"),FSKEY_F,L"Apply Filter")->BindCallBack(&THISCLASS::AutomaticFiltering,this);
+
 	}
 
 	{

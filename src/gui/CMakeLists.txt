@@ -170,6 +170,7 @@ fsguimain.cpp
 singleton.cpp
 filemenu.cpp
 viewmenu.cpp
+automenu.cpp
 analyzemenu.cpp
 editmenu.cpp
 filtermenu.cpp

@@ -71,60 +71,12 @@ void FsGuiMainCanvas::Analyze_FilterShortAndLowPeak(FsGuiPopUpMenuItem *)
 
 void FsGuiMainCanvas::Analyze_FilterShortAndLowPeak_DoFilter(unsigned int lowThr,unsigned int shortThr)
 {
-	auto &wav=GetCurrentWav();
-	auto &wavRaw=wav.GetWave();
-	std::vector <YsWaveKernel::Peak> peak=wav.GetPeak(),newPeak;
-	auto channel=GetCurrentChannel();
+	auto &waveEdit=GetCurrentWav();
 
-	for(YSSIZE_T i=peak.size()-1; 0<=i; --i)
-	{
-		peak[i].deleted=false;
-	}
-
-	YSSIZE_T i0=0,i1=0;
-	for(YSSIZE_T i=0; i<peak.size(); ++i)
-	{
-		if(peak[i].isHigh!=peak[i1].isHigh)
-		{
-			i0=i1;
-			i1=i;
-
-			if(peak[i1].idx<=peak[i0].idx+shortThr)
-			{
-				for(auto j=i0; j<=i1; ++j)
-				{
-					peak[j].deleted=true;
-				}
-				i1=i+1;
-				i0=i1;
-				continue;
-			}
-
-			auto level0=wavRaw.GetSignedValue16(channel,peak[i0].idx);
-			auto level1=wavRaw.GetSignedValue16(channel,peak[i1].idx);
-			auto diff=YsAbs(level1-level0);
-			if(diff<lowThr)
-			{
-				for(auto j=i0; j<=i1; ++j)
-				{
-					peak[j].deleted=true;
-				}
-				i1=i+1;
-				i0=i1;
-				continue;
-			}
-		}
-	}
-
-	for(auto &p : peak)
-	{
-		if(true!=p.deleted)
-		{
-			newPeak.push_back(p);
-		}
-	}
-
-	wav.SetPeak(newPeak);
+	YsString str;
+	str.Printf("FILTER LOW_AND_SHORT_PEAK %d %d %d",GetCurrentChannel(),lowThr,shortThr);
+	waveEdit.RunCommand(str);
+	SetNeedRedraw(YSTRUE);
 }
 
 
