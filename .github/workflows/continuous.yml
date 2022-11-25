@@ -86,7 +86,7 @@ jobs:
       working-directory: ./ci_macos
     - name: make_zip
       run: |
-          cmake -E copy_directory ../gui/soundcrest.app ./soundcrest.app
+          cmake -E copy_directory ./gui/soundcrest.app ./soundcrest.app
           cmake -E copy ../README.md .
           cmake -E copy ../LICENSE .
           cmake -E copy_directory ../rc ./rc
