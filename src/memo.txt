@@ -1,0 +1,19 @@
+0. Mac + Audacity a bad mix.
+   Too many dropped frames.  Audacity may be good processor after recording.  Not a good recorder.
+   Miraculously Mac mini + Audacity successfully captured Plazma Line though.
+   LockOn.exe for Windows works much better.
+
+1. Record the tape as "Stereo"
+   Why?  Output phase from left and right may be shifted a little bit.  Combining the two channels may destroy waves.
+
+2. In my SANYO cassette recorder, right channel (channel 1) looks to give clearer waves.
+   If one channel fails to restore, the other channel may work.
+
+3. Make sure white noise are cleared all the way to the beginning of the .WAV from the beginning of the first file, and the end of the last file all the way to the end of .WAV.  If left over, it may do all bad things while hammering low peaks.
+
+
+
+
+TODO:
+2. Filter low and short peaks.
+
