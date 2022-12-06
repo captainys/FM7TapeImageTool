@@ -21,11 +21,17 @@ public:
 		ERROR_CORRUPTED_BLOCK,
 	};
 
+	enum
+	{
+		MICROSEC_PER_ONE_COUNT_T77=9
+	};
+
 	class Option
 	{
 	public:
 		long long zeroMinWaveLength,zeroMaxWaveLength;
 		long long oneMinWaveLength,oneMaxWaveLength;
+		bool standardWaveLength=true;
 
 		Option()
 		{
@@ -33,6 +39,7 @@ public:
 			zeroMaxWaveLength=27;
 			oneMinWaveLength=32;
 			oneMaxWaveLength=60;
+			standardWaveLength=true;
 		}
 		bool IsZero(long long waveLength)
 		{

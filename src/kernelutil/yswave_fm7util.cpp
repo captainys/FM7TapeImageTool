@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "yswave_fm7util.h"
 
 
@@ -800,9 +801,19 @@ std::vector <unsigned char> YsWave_FM7Util::EncodeT77BitWise(const YsSoundPlayer
 	int waveLength=0;
 	int sign=-1;
 	bool firstNonZero=false;
+	uint64_t microsec=0;
+	int timeBalance=0; // microsec moves 1000000 while ptr moves wav.PlayBackRate()
+	uint64_t pulseStartMicrosec=0;
 	for(long long int ptr=0; ptr<wav.GetNumSamplePerChannel(); ++ptr)
 	{
 		int value=wav.GetSignedValue16(channel,ptr);
+
+		timeBalance+=1000000;
+		while(0<timeBalance)
+		{
+			microsec++;
+			timeBalance-=wav.PlayBackRate();
+		}
 
 		if(true!=firstNonZero && 0==value)
 		{
@@ -813,37 +824,64 @@ std::vector <unsigned char> YsWave_FM7Util::EncodeT77BitWise(const YsSoundPlayer
 
 		if((sign<0 && 0<value) || (value<0 && 0<sign))
 		{
-			// 44KHz sampling -> 19 samples=0x30 in T77.
-			int t77Length=0x30*waveLength/18;
-			if(t77Length<0)
+			if(true==opt.standardWaveLength)
 			{
-				t77Length=1;
-			}
-			else if(0x7f<t77Length)
-			{
-				t77Length=0x7f;
-			}
+				// 44KHz sampling -> 19 samples=0x30 in T77.
+				int t77Length=0x30*waveLength/18;
+				if(t77Length<0)
+				{
+					t77Length=1;
+				}
+				else if(0x7f<t77Length)
+				{
+					t77Length=0x7f;
+				}
 
-			// Filter >>
-			if(t77Length<0x28)
-			{
-				t77Length=0x20;
+				// Filter >>
+				if(t77Length<0x28)
+				{
+					t77Length=0x20;
+				}
+				else
+				{
+					t77Length=0x30;
+				}
+				// Filter <<
+
+				if(0<sign)
+				{
+					t77.push_back(0);
+				}
+				else
+				{
+					t77.push_back(0x80);
+				}
+				t77.push_back(t77Length);
 			}
 			else
 			{
-				t77Length=0x30;
-			}
-			// Filter <<
+				auto t77Count=(microsec-pulseStartMicrosec)/MICROSEC_PER_ONE_COUNT_T77;
+				pulseStartMicrosec+=t77Count*MICROSEC_PER_ONE_COUNT_T77;
 
-			if(0<sign)
-			{
-				t77.push_back(0);
+				if(t77Count<1)
+				{
+					t77Count=1;
+				}
+				else if(0x7F<t77Count)
+				{
+					t77Count=0x7F;
+				}
+
+				if(0<sign)
+				{
+					t77.push_back(0);
+				}
+				else
+				{
+					t77.push_back(0x80);
+				}
+				t77.push_back(t77Count);
 			}
-			else
-			{
-				t77.push_back(0x80);
-			}
-			t77.push_back(t77Length);
 			waveLength=0;
 			sign=-sign;
 		}

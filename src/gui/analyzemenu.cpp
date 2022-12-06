@@ -492,10 +492,11 @@ public:
 	FsGuiButton *repairNextByteBtn;
 
 	FsGuiButton *saveT77Btn;
-	FsGuiButton *forceSaveT77Btn;
+	FsGuiButton *forceSaveT77StdBtn;
+	FsGuiButton *forceSaveT77NonStdBtn;
 	FsGuiButton *saveRawBinaryBtn;
 
-	bool forceSave;
+	bool forceSave,standardWaveLength=true;
 
 	void SetLastError(int errorCode,long long errorPtr);
 
@@ -555,8 +556,10 @@ void FsGuiMainCanvas::FM7Dialog::Make(FsGuiMainCanvas *owner)
 	repairNextByteBtn=AddTextButton(MkId("repairNextByte"),FSKEY_NULL,FSGUI_PUSHBUTTON,L"Try Repair Next Byte",YSFALSE);
 
 	saveT77Btn=AddTextButton(MkId("saveT77"),FSKEY_NULL,FSGUI_PUSHBUTTON,L"Save T77 file",YSFALSE);
-	forceSaveT77Btn=AddTextButton(MkId("forceSaveT77"),FSKEY_NULL,FSGUI_PUSHBUTTON,L"Force Save T77 file",YSFALSE);
 	saveRawBinaryBtn=AddTextButton(MkId("saveRaw"),FSKEY_NULL,FSGUI_PUSHBUTTON,L"Save RAW Binary Streams",YSFALSE);
+
+	forceSaveT77StdBtn=AddTextButton(MkId("forceSaveT77"),FSKEY_NULL,FSGUI_PUSHBUTTON,L"Force Save T77 file (Standard Wave Length)",YSTRUE);
+	forceSaveT77NonStdBtn=AddTextButton(MkId("forceSaveT77NS"),FSKEY_NULL,FSGUI_PUSHBUTTON,L"Force Save T77 file (Non-Standard Wave Length)",YSFALSE);
 
 	SetTransparency(YSTRUE);
 	SetBackgroundAlpha(0.0);
@@ -824,9 +827,16 @@ void FsGuiMainCanvas::FM7Dialog::OnButtonClick(FsGuiButton *btn)
 		forceSave=false;
 		SaveT77();
 	}
-	else if(btn==forceSaveT77Btn)
+	else if(btn==forceSaveT77StdBtn)
 	{
 		forceSave=true;
+		standardWaveLength=true;
+		SaveT77();
+	}
+	else if(btn==forceSaveT77NonStdBtn)
+	{
+		forceSave=true;
+		standardWaveLength=false;
 		SaveT77();
 	}
 	else if(btn==saveRawBinaryBtn)
@@ -1031,6 +1041,7 @@ void FsGuiMainCanvas::FM7Dialog::SaveT77_ForceSave(YsWString fName)
 
 	YsWave_FM7Util fm7Util;
 	auto opt=wav.fm7UtilOption;
+	opt.standardWaveLength=standardWaveLength;
 
 	auto t77=fm7Util.EncodeT77BitWise(wavRaw,channel,opt);
 	YsFileIO::File fp(fName,"wb");
