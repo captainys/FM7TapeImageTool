@@ -128,7 +128,7 @@ void FsGuiMainCanvas::JumpToDialog::Make(FsGuiMainCanvas *owner)
 	jumpBtn=AddTextButton(MkId("jump"),FSKEY_NULL,FSGUI_PUSHBUTTON,L"Jump",YSFALSE);
 	closeBtn=AddTextButton(MkId("close"),FSKEY_NULL,FSGUI_PUSHBUTTON,L"Close",YSFALSE);
 
-	locationTxt=AddTextBox(MkId("location"),FSKEY_NULL,FsGuiTextBox::HORIZONTAL,L"Location",7,YSFALSE);
+	locationTxt=AddTextBox(MkId("location"),FSKEY_NULL,FsGuiTextBox::HORIZONTAL,L"Location",10,YSFALSE);
 	SetArrangeType(FSDIALOG_ARRANGE_TOP_LEFT);
 	Fit();
 }
