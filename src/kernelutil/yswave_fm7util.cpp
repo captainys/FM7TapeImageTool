@@ -782,6 +782,52 @@ YsWave_FM7Util::TapeBlock YsWave_FM7Util::ReadRawByteSequence(const YsSoundPlaye
 	return block;
 }
 
+YsWave_FM7Util::TapeBlock YsWave_FM7Util::ReadBareByteSequence(const YsSoundPlayer::SoundData &wav,int channel,long long int ptr,Option opt) const
+{
+	TapeBlock block;
+	block.errorCode=ERROR_NOERROR;
+	block.minmax[0]=ptr;
+	block.minmax[1]=ptr+1;
+	block.nLeadFF=0;
+	block.nTrailFF=0;
+
+	unsigned int ctr=0;
+
+	while(ptr<wav.GetNumSamplePerChannel())
+	{
+		ByteData bd=ReadByte(wav,channel,ptr,opt);
+		if(bd.res!=YSOK)
+		{
+			if(0<block.dump.size())
+			{
+				break;
+			}
+			++ptr;
+			while(ptr<wav.GetNumSamplePerChannel() && 0==wav.GetSignedValue16(channel,ptr))
+			{
+				++ptr;
+			}
+		}
+		else
+		{
+			if(0==block.dump.size())
+			{
+				block.minmax[0]=bd.minmax[0];
+			}
+			block.dump.push_back(bd.byteData);
+			block.minmax[1]=bd.minmax[1]+1;
+			ptr=bd.minmax[1]+1;
+		}
+
+		++ctr;
+		if(10000<ctr && ctr%1000==0)
+		{
+			printf("%lld/%lld %lld\n",ptr,wav.GetNumSamplePerChannel(),block.dump.size());
+		}
+	}
+	return block;
+}
+
 std::vector <unsigned char> YsWave_FM7Util::EncodeT77BitWise(const YsSoundPlayer::SoundData &wav,int channel,Option opt) const
 {
 	std::vector <unsigned char> t77;

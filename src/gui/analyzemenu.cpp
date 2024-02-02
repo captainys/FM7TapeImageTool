@@ -485,6 +485,9 @@ public:
 	FsGuiButton *readRawByteSequence;
 	FsGuiButton *skipRawByteSequence;
 
+	FsGuiButton *readSynclessRawByteSequence;
+	FsGuiButton *skipSynclessRawByteSequence;
+
 	FsGuiButton *jumpToLastErrorBtn;
 
 	FsGuiButton *repairFFinFileBtn;
@@ -549,6 +552,9 @@ void FsGuiMainCanvas::FM7Dialog::Make(FsGuiMainCanvas *owner)
 	skipFileBtn=AddTextButton(MkId("skipFile"),FSKEY_NULL,FSGUI_PUSHBUTTON,L"Skip File",YSFALSE);
 	readRawByteSequence=AddTextButton(MkId("readRawByteSequence"),FSKEY_NULL,FSGUI_PUSHBUTTON,"Read Lead+Raw Bytes",YSFALSE);
 	skipRawByteSequence=AddTextButton(MkId("skipRawByteSequence"),FSKEY_NULL,FSGUI_PUSHBUTTON,"Skip Lead+Raw Bytes",YSFALSE);
+
+	readSynclessRawByteSequence=AddTextButton(MkId("readSynclessRawByteSequence"),FSKEY_NULL,FSGUI_PUSHBUTTON,"Read Raw Bytes without Sync",YSTRUE);
+	skipSynclessRawByteSequence=AddTextButton(MkId("readSynclessRawByteSequence"),FSKEY_NULL,FSGUI_PUSHBUTTON,"Skip Raw Bytes without Sync",YSFALSE);
 
 	getByteBtn=AddTextButton(MkId("getByte"),FSKEY_NULL,FSGUI_PUSHBUTTON,L"Get Byte (SEL)",YSTRUE);
 	repairFFinFileBtn=AddTextButton(MkId("repairFFinFile"),FSKEY_NULL,FSGUI_PUSHBUTTON,L"Repair FF in File(SEL)",YSFALSE);
@@ -673,6 +679,7 @@ void FsGuiMainCanvas::FM7Dialog::OnButtonClick(FsGuiButton *btn)
 				SetLastError(blk.errorCode,blk.errorPtr);
 			}
 		}
+		printf("----\n");
 	}
 	else if(btn==skipFileBtn)
 	{
@@ -704,6 +711,7 @@ void FsGuiMainCanvas::FM7Dialog::OnButtonClick(FsGuiButton *btn)
 				SetLastError(blk.errorCode,blk.errorPtr);
 			}
 		}
+		printf("----\n");
 	}
 	else if(btn==readRawByteSequence)
 	{
@@ -758,6 +766,8 @@ void FsGuiMainCanvas::FM7Dialog::OnButtonClick(FsGuiButton *btn)
 					SetLastError(blk.errorCode,blk.errorPtr);
 				}
 
+				searchFromTxt->SetInteger(blk.minmax[1]);
+
 				auto sel=wav.GetSelection();
 				sel.minmax[0]=blk.minmax[0];
 				sel.minmax[1]=blk.minmax[1];
@@ -765,6 +775,58 @@ void FsGuiMainCanvas::FM7Dialog::OnButtonClick(FsGuiButton *btn)
 				owner->SetNeedRedraw(YSTRUE);
 			}
 		}
+	}
+	else if(btn==readSynclessRawByteSequence)
+	{
+		auto &wav=owner->GetCurrentWav();
+		auto &wavRaw=wav.GetWave();
+		auto &peak=wav.GetPeak();
+		auto channel=owner->GetCurrentChannel();
+		auto fromPtr=searchFromTxt->GetInteger();
+
+		SendThresholdCommand();
+
+		YsWave_FM7Util fm7Util;
+
+		auto blk=fm7Util.ReadBareByteSequence(wavRaw,channel,fromPtr,wav.fm7UtilOption);
+		if(YsWave_FM7Util::ERROR_NOERROR!=blk.errorCode)
+		{
+			SetLastError(blk.errorCode,blk.errorPtr);
+		}
+
+		printf("%zd bytes\n",blk.dump.size());
+
+		auto sel=wav.GetSelection();
+		sel.minmax[0]=blk.minmax[0];
+		sel.minmax[1]=blk.minmax[1];
+		wav.SetSelection(sel);
+		owner->SetNeedRedraw(YSTRUE);
+	}
+	else if(btn==skipSynclessRawByteSequence)
+	{
+		auto &wav=owner->GetCurrentWav();
+		auto &wavRaw=wav.GetWave();
+		auto &peak=wav.GetPeak();
+		auto channel=owner->GetCurrentChannel();
+		auto fromPtr=searchFromTxt->GetInteger();
+
+		SendThresholdCommand();
+
+		YsWave_FM7Util fm7Util;
+
+		auto blk=fm7Util.ReadBareByteSequence(wavRaw,channel,fromPtr,wav.fm7UtilOption);
+
+		if(YsWave_FM7Util::ERROR_NOERROR!=blk.errorCode)
+		{
+			SetLastError(blk.errorCode,blk.errorPtr);
+		}
+		auto sel=wav.GetSelection();
+		sel.minmax[0]=blk.minmax[0];
+		sel.minmax[1]=blk.minmax[1];
+		wav.SetSelection(sel);
+		owner->SetNeedRedraw(YSTRUE);
+
+		searchFromTxt->SetInteger(blk.minmax[1]);
 	}
 	else if(btn==repairFFinFileBtn)
 	{
@@ -993,8 +1055,25 @@ void FsGuiMainCanvas::FM7Dialog::SaveT77_Save(YsWString fName)
 		}
 		else
 		{
-			// Try reading as a raw data block.
+		#if 1
+			// Try reading as a bare (sync-less) data block.
 			YsWave_FM7Util fm7Util;
+			auto blk=fm7Util.ReadBareByteSequence(wavRaw,channel,ptr,wav.fm7UtilOption);
+			if(0==blk.dump.size())
+			{
+				break;
+			}
+
+			printf("* Save as Raw Data Block  %lld bytes\n",(long long int)blk.dump.size());
+
+			for(auto c : blk.dump)
+			{
+				encoder.AddByte(c);
+			}
+
+			ptr=blk.minmax[1];
+		#else
+			// Try reading as a raw data block.
 			auto lead=fm7Util.FindLead(wavRaw,channel,ptr,wav.fm7UtilOption);
 			if(0<lead.numFF)
 			{
@@ -1020,6 +1099,7 @@ void FsGuiMainCanvas::FM7Dialog::SaveT77_Save(YsWString fName)
 			{
 				break;
 			}
+		#endif
 		}
 
 		encoder.AddGapBetweenFile();

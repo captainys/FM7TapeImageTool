@@ -128,6 +128,8 @@ public:
 	TapeFile ReadFile(const YsSoundPlayer::SoundData &wav,int channel,long long ptr,Option opt) const;
 	TapeBlock ReadRawByteSequence(const YsSoundPlayer::SoundData &wav,int channel,Lead lead,Option opt) const;
 
+	TapeBlock ReadBareByteSequence(const YsSoundPlayer::SoundData &wav,int channel,long long int ptr,Option opt) const;
+
 	std::vector <unsigned char> EncodeT77BitWise(const YsSoundPlayer::SoundData &wav,int channel,Option opt) const;
 };
 
