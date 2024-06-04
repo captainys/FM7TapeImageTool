@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "yswaveedit.h"
 
 #include <yswave_waveutil.h>

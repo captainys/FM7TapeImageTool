@@ -499,6 +499,8 @@ public:
 	FsGuiButton *forceSaveT77NonStdBtn;
 	FsGuiButton *saveRawBinaryBtn;
 
+	FsGuiButton *silenceNonBIOSBytes;
+
 	bool forceSave,standardWaveLength=true;
 
 	void SetLastError(int errorCode,long long errorPtr);
@@ -515,6 +517,8 @@ public:
 
 	void SaveRawBinary(void);
 	void SaveRawBinary_FileSelected(FsGuiDialog *dlg,int returnCode);
+
+	void SilenceNonBIOSBytes(void);
 };
 
 void FsGuiMainCanvas::FM7Dialog::Make(FsGuiMainCanvas *owner)
@@ -567,6 +571,8 @@ void FsGuiMainCanvas::FM7Dialog::Make(FsGuiMainCanvas *owner)
 	forceSaveT77StdBtn=AddTextButton(MkId("forceSaveT77"),FSKEY_NULL,FSGUI_PUSHBUTTON,L"Force Save T77 file (Standard Wave Length)",YSTRUE);
 	forceSaveT77NonStdBtn=AddTextButton(MkId("forceSaveT77NS"),FSKEY_NULL,FSGUI_PUSHBUTTON,L"Force Save T77 file (Non-Standard Wave Length)",YSFALSE);
 
+	silenceNonBIOSBytes=AddTextButton(MkId("silenceNonBIOSBytes"),FSKEY_NULL,FSGUI_PUSHBUTTON,L"Silence Non-BIOS Bytes",YSTRUE);
+
 	SetTransparency(YSTRUE);
 	SetBackgroundAlpha(0.0);
 	SetArrangeType(FSDIALOG_ARRANGE_TOP_LEFT);
@@ -600,7 +606,7 @@ void FsGuiMainCanvas::FM7Dialog::OnButtonClick(FsGuiButton *btn)
 		auto byteData=fm7Util.ReadByte(wavRaw,channel,sel.minmax[0],wav.fm7UtilOption);
 		if(YSOK==byteData.res)
 		{
-			printf("%d\n",byteData.byteData);
+			printf("%d (%02xH)\n",byteData.byteData,byteData.byteData);
 			sel.minmax[0]=byteData.minmax[0];
 			sel.minmax[1]=byteData.minmax[1];
 			wav.SetSelection(sel);
@@ -904,6 +910,10 @@ void FsGuiMainCanvas::FM7Dialog::OnButtonClick(FsGuiButton *btn)
 	else if(btn==saveRawBinaryBtn)
 	{
 		SaveRawBinary();
+	}
+	else if(btn==silenceNonBIOSBytes)
+	{
+		SilenceNonBIOSBytes();
 	}
 }
 
@@ -1263,4 +1273,56 @@ void FsGuiMainCanvas::FM7Dialog::SaveRawBinary_FileSelected(FsGuiDialog *dlg,int
 			}
 		}
 	}
+}
+
+void FsGuiMainCanvas::FM7Dialog::SilenceNonBIOSBytes(void)
+{
+	auto &wav=owner->GetCurrentWav();
+	auto &wavRaw=wav.GetWave();
+	auto &peak=wav.GetPeak();
+	auto channel=owner->GetCurrentChannel();
+	auto sel=wav.GetSelection();
+
+	SendThresholdCommand();
+
+	YsLoopCounter ctr;
+	ctr.BeginCounter(wavRaw.GetNumSamplePerChannel());
+
+	long long ptr=0;
+	while(ptr<wavRaw.GetNumSamplePerChannel())
+	{
+		ctr.ShowCounter(ptr);
+
+		YsWave_FM7Util fm7Util;
+		auto blk=fm7Util.ReadBareByteSequence(wavRaw,channel,ptr,wav.fm7UtilOption);
+		if(0!=blk.dump.size())
+		{
+			if(ptr+1<blk.minmax[0])
+			{
+				YsString str;
+				str.Printf("EDIT SILENCE %d %lld %lld",channel,ptr,blk.minmax[0]);
+				printf("%s\n",str.Txt());
+				wav.RunCommand(str);
+			}
+			ptr=blk.minmax[1]+1;
+		}
+		else
+		{
+			// Nothing is found
+			if(ptr+1<wavRaw.GetNumSamplePerChannel())
+			{
+				YsString str;
+				str.Printf("EDIT SILENCE %d %lld %lld",channel,ptr,wavRaw.GetNumSamplePerChannel());
+				printf("%s\n",str.Txt());
+				wav.RunCommand(str);
+			}
+			break;
+		}
+	}
+
+	ctr.EndCounter();
+
+	YsString str;
+	str.Printf("EDIT REALLY_SILENCE_SILENT_REGIONS %d",channel);
+	wav.RunCommand(str);
 }
