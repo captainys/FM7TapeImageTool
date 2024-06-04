@@ -18,6 +18,12 @@ public:
 	YsWaveKernel::Region GetRegion(void) const;
 	long long GetWaveLength(void) const;
 
+	/*! The first wave of a byte trailing a silent segment may be stretched.
+	    Cut off part before it reaches the 40% (hard-coded) of the max amplitude.
+	*/
+	long long GetWaveLengthFirstWaveOfByte(const YsSoundPlayer::SoundData &wav,int channel) const;
+
+
 	void MakeSineWave(YsSoundPlayer::SoundData &wav,int channel,bool highFirst,long long ptr0,long long ptr1,int amplitude);
 	void MakeSineWaveNoZero(YsSoundPlayer::SoundData &wav,int channel,bool highFirst,long long ptr0,long long ptr1,int amplitude);
 

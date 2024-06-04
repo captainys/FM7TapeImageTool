@@ -1,4 +1,6 @@
 #include "yswave_waveutil.h"
+#include <cstdlib>
+#include <algorithm>
 
 
 
@@ -132,6 +134,30 @@ YsWaveKernel::Region YsWave_WaveUtil::GetRegion(void) const
 long long YsWave_WaveUtil::GetWaveLength(void) const
 {
 	return (zero[2]-zero[0])+1;
+}
+
+long long YsWave_WaveUtil::GetWaveLengthFirstWaveOfByte(const YsSoundPlayer::SoundData &wav,int channel) const
+{
+	const int firstBitThreshold=40;
+
+	int maxAmpl=0;
+	for(int i=zero[0]; i<=zero[1]; ++i)
+	{
+		auto ampl=std::abs(wav.GetSignedValue16(channel,i));
+		maxAmpl=std::max(maxAmpl,ampl);
+	}
+
+	long long realZero=zero[0];
+	for(; realZero<zero[1]; ++realZero)
+	{
+		auto ampl=std::abs(wav.GetSignedValue16(channel,realZero));
+		if(maxAmpl*firstBitThreshold/100<=ampl)
+		{
+			break;
+		}
+	}
+
+	return (zero[2]-realZero)+1;
 }
 
 

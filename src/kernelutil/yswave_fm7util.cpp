@@ -337,7 +337,7 @@ YsWave_FM7Util::ByteData YsWave_FM7Util::ReadByte(const YsSoundPlayer::SoundData
 
 	// Find 01111111111
 	YsWave_WaveUtil waveUtil;
-	if(YSOK==waveUtil.DetectWave(wav,channel,ptr) && true==opt.IsZero(waveUtil.GetWaveLength()))
+	if(YSOK==waveUtil.DetectWave(wav,channel,ptr) && true==opt.IsZero(waveUtil.GetWaveLengthFirstWaveOfByte(wav,channel)))
 	{
 		// Found first zero.
 		byteData.minmax[0]=waveUtil.GetRegion().Min();
