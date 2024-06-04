@@ -896,11 +896,11 @@ std::vector <unsigned char> YsWave_FM7Util::EncodeT77BitWise(const YsSoundPlayer
 
 				if(0<sign)
 				{
-					t77.push_back(0);
+					t77.push_back(0x80);
 				}
 				else
 				{
-					t77.push_back(0x80);
+					t77.push_back(0);
 				}
 				t77.push_back(t77Length);
 			}
@@ -920,11 +920,11 @@ std::vector <unsigned char> YsWave_FM7Util::EncodeT77BitWise(const YsSoundPlayer
 
 				if(0<sign)
 				{
-					t77.push_back(0);
+					t77.push_back(0x80);
 				}
 				else
 				{
-					t77.push_back(0x80);
+					t77.push_back(0);
 				}
 				t77.push_back(t77Count);
 			}
