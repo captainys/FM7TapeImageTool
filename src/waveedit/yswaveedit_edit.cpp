@@ -264,7 +264,7 @@ YSRESULT YsWaveEdit::RunCommand_Edit_ForceWaveLength(const YsString &fullCmd,YsC
 						resample.push_back(0);
 					}
 
-					i=rgn.minmax[1];
+					i=rgn.minmax[1]+1;
 					processed=true;
 					everProcessed=true;
 				}

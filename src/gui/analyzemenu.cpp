@@ -1,6 +1,8 @@
+#include <string>
 #include <ysport.h>
 #include <t77.h>
 #include <fsguifiledialog.h>
+#include "cpplib.h"
 
 #include "yswave_fm7util.h"
 
@@ -501,6 +503,9 @@ public:
 
 	FsGuiButton *silenceNonBIOSBytes;
 
+	FsGuiTextBox *searchTxt;
+	FsGuiButton *searchBtn,*searchTxtBtn;
+
 	bool forceSave,standardWaveLength=true;
 
 	void SetLastError(int errorCode,long long errorPtr);
@@ -572,6 +577,10 @@ void FsGuiMainCanvas::FM7Dialog::Make(FsGuiMainCanvas *owner)
 	forceSaveT77NonStdBtn=AddTextButton(MkId("forceSaveT77NS"),FSKEY_NULL,FSGUI_PUSHBUTTON,L"Force Save T77 file (Non-Standard Wave Length)",YSFALSE);
 
 	silenceNonBIOSBytes=AddTextButton(MkId("silenceNonBIOSBytes"),FSKEY_NULL,FSGUI_PUSHBUTTON,L"Silence Non-BIOS Bytes",YSTRUE);
+
+	searchTxt=AddTextBox(0,FSKEY_NULL,FsGuiTextBox::HORIZONTAL,L"Byte Search",20,YSTRUE);
+	searchBtn=AddTextButton(0,FSKEY_NULL,FSGUI_PUSHBUTTON,"Find",YSFALSE);
+	searchTxtBtn=nullptr;
 
 	SetTransparency(YSTRUE);
 	SetBackgroundAlpha(0.0);
@@ -914,6 +923,63 @@ void FsGuiMainCanvas::FM7Dialog::OnButtonClick(FsGuiButton *btn)
 	else if(btn==silenceNonBIOSBytes)
 	{
 		SilenceNonBIOSBytes();
+	}
+	else if(btn==searchBtn)
+	{
+		auto str=searchTxt->GetString();
+
+		std::vector <std::string> strs;
+		for(auto arg : str.Argv())
+		{
+			strs.push_back(arg.c_str());
+		}
+
+		auto bytes=FM7Lib::RawHexToByteData(strs);
+
+
+		auto &wav=owner->GetCurrentWav();
+		auto &wavRaw=wav.GetWave();
+		auto channel=owner->GetCurrentChannel();
+		auto fromPtr=searchFromTxt->GetInteger();
+
+		SendThresholdCommand();
+
+		YsWave_FM7Util fm7Util;
+
+		for(auto i=fromPtr; i<wavRaw.GetNumSamplePerChannel(); )
+		{
+			bool processed=false;
+			bool match=true;
+			auto ptr=i;
+			for(auto c : bytes)
+			{
+				auto byteData=fm7Util.ReadByte(wavRaw,channel,ptr,wav.fm7UtilOption);
+				if(YSOK!=byteData.res || c!=byteData.byteData)
+				{
+					match=false;
+					break;
+				}
+				ptr=byteData.minmax[1]+1;
+			}
+
+			if(true==match)
+			{
+				printf("Found at %lld\n",i);
+
+				auto sel=wav.GetSelection();
+				sel.minmax[0]=i;
+				sel.minmax[1]=ptr;
+				wav.SetSelection(sel);
+				owner->SetNeedRedraw(YSTRUE);
+				
+				break;
+			}
+
+			if(true!=processed)
+			{
+				++i;
+			}
+		}
 	}
 }
 
