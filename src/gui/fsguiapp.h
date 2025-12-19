@@ -253,7 +253,8 @@ private:
 
 	void Filter_Median(FsGuiPopUpMenuItem *);
 	void Filter_ExpandEnvelope(FsGuiPopUpMenuItem *);
-
+	class ForceWaveLengthDialog;
+	void Filter_ForceWaveLength(FsGuiPopUpMenuItem *);
 
 
 	/*! Customize this function.

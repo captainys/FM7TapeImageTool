@@ -37,6 +37,7 @@ private:
 	YSRESULT RunCommand_Edit_Trim(const YsString &fullCmd,YsConstArrayMask <YsString> argv);
 	YSRESULT RunCommand_Edit_MergeChannel(const YsString &fullCmd,YsConstArrayMask <YsString> argv);
 	YSRESULT RunCommand_Edit_ReallySilenceSilentRegion(const YsString &fullCmd,YsConstArrayMask <YsString> argv);
+	YSRESULT RunCommand_Edit_ForceWaveLength(const YsString &fullCmd,YsConstArrayMask <YsString> argv);
 
 	YSRESULT RunCommand_Filter(const YsString &fullCmd,YsConstArrayMask <YsString> argv);
 	YSRESULT RunCommand_Filter_Median(const YsString &fullCmd,YsConstArrayMask <YsString> argv);

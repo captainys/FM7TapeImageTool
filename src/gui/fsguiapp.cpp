@@ -184,6 +184,8 @@ void FsGuiMainCanvas::MakeMainMenu(void)
 		manualMenu->AddTextItem(mainMenu->MkId("manual/calculateEnvelope"),FSKEY_E,L"Calculate Envelope")->BindCallBack(&THISCLASS::Analyze_CalculateEnvelope,this);
 
 		manualMenu->AddTextItem(mainMenu->MkId("manual/expand_envelope"),FSKEY_X,L"Expand Envelope")->BindCallBack(&THISCLASS::Filter_ExpandEnvelope,this);
+
+		manualMenu->AddTextItem(0,FSKEY_NULL,L"Force Wave Length")->BindCallBack(&THISCLASS::Filter_ForceWaveLength,this);
 	}
 
 	{
