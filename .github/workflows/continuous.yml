@@ -12,7 +12,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: checkout_public_libraries
       run: git clone https://github.com/captainys/public.git
       working-directory: .
@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: checkout_public_libraries
       run: git clone https://github.com/captainys/public.git
       working-directory: .
@@ -73,7 +73,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: checkout_public_libraries
       run: git clone https://github.com/captainys/public.git
       working-directory: .
