@@ -46,6 +46,10 @@ YSRESULT YsWaveEdit::RunCommand_Edit(const YsString &fullCmd,YsConstArrayMask <Y
 	{
 		return RunCommand_Edit_ForceWaveLength(fullCmd,argv);
 	}
+	else if(0==argv[1].STRCMP("FORCESINEWAVE"))
+	{
+		return RunCommand_Edit_ForceSineWave(fullCmd,argv);
+	}
 
 	Error(fullCmd,"Unrecognized sub-command.");
 	return YSERR;
@@ -302,6 +306,102 @@ YSRESULT YsWaveEdit::RunCommand_Edit_ForceWaveLength(const YsString &fullCmd,YsC
 		}
 
 		printf("Old Len %d  New Len %d\n",oldLen,newLen);
+	}
+
+	return YSOK;
+}
+
+// [0]  [1]           [2]     [3]   [4]  [5][6]       [7]
+// EDIT FORCESINEWAVE channel 0/1/2 from to srcLenMin srcLenMax
+YSRESULT YsWaveEdit::RunCommand_Edit_ForceSineWave(const YsString &fullCmd,YsConstArrayMask <YsString> argv)
+{
+	const int lowFirstWaveType=1;
+	const int highFirstWaveType=2;
+
+	if(argv.size()<8)
+	{
+		Error(fullCmd,"Too few arguments.");
+		return YSERR;
+	}
+
+	auto channel=atoi(argv[2].c_str());
+	auto waveType=atoi(argv[3].c_str());
+
+	auto minSrcLen=atoi(argv[6].c_str());
+	auto maxSrcLen=atoi(argv[7].c_str());
+
+	if(this->wav.GetNumChannel()<=channel)
+	{
+		Error(fullCmd,"Invalid channel.");
+		return YSERR;
+	}
+
+	size_t i0=atoi(argv[4].c_str());
+	size_t i1=atoi(argv[5].c_str());
+
+	i0=std::min<size_t>(this->wav.GetNumSamplePerChannel()-1,i0);
+	i1=std::min<size_t>(this->wav.GetNumSamplePerChannel()-1,i1);
+
+	if(i1<=i0) // Nothing to do.
+	{
+		return YSOK;
+	}
+
+	bool everProcessed=false;
+	for(auto i=i0; i<i1; )
+	{
+		bool processed=false;
+		YsWave_WaveUtil oneWave;
+		if(YSOK==oneWave.DetectWave(this->wav,channel,i))
+		{
+			if(lowFirstWaveType==waveType && true==oneWave.HighFirst())
+			{
+				// Do nothing.
+			}
+			else if(highFirstWaveType==waveType && true!=oneWave.HighFirst())
+			{
+				// Do nothing.
+			}
+			else
+			{
+				auto rgn=oneWave.GetRegion();
+				auto len=rgn.GetLength();
+				double sign=1.0;
+
+				if(true!=oneWave.HighFirst())
+				{
+					sign=-1.0;
+				}
+
+				if(i0<=rgn.minmax[0] && minSrcLen<=len && len<=maxSrcLen)
+				{
+					int amplMax=0;
+					for(auto i=rgn.minmax[0]; i<=rgn.minmax[1]; ++i)
+					{
+						auto ampl=this->wav.GetSignedValue16(channel,i);
+						amplMax=std::max<int>(YsAbs(ampl),amplMax);
+					}
+
+					int iAngleRange=len+2; // Avoid zero.
+					for(auto i=rgn.minmax[0]; i<=rgn.minmax[1]; ++i)
+					{
+						int iAngle=1+i-rgn.minmax[0];
+
+						double radian=YsPi*2.0*double(iAngle)/double(iAngleRange);
+						double y=sin(radian)*sign*double(amplMax);
+
+						this->wav.SetSignedValue16(channel,i,int(y));
+					}
+
+					i=rgn.minmax[1]+1;
+					processed=true;
+				}
+			}
+		}
+		if(true!=processed)
+		{
+			++i;
+		}
 	}
 
 	return YSOK;

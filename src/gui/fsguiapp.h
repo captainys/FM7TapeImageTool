@@ -255,6 +255,8 @@ private:
 	void Filter_ExpandEnvelope(FsGuiPopUpMenuItem *);
 	class ForceWaveLengthDialog;
 	void Filter_ForceWaveLength(FsGuiPopUpMenuItem *);
+	class ForceSineWaveDialog;
+	void Filter_ForceSineWave(FsGuiPopUpMenuItem *);
 
 
 	/*! Customize this function.
